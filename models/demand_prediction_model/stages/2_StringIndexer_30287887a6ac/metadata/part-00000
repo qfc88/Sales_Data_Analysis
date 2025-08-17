@@ -1,0 +1,1 @@
+{"class":"org.apache.spark.ml.feature.StringIndexerModel","timestamp":1736884942879,"sparkVersion":"3.1.1","uid":"StringIndexer_30287887a6ac","paramMap":{"outputCol":"price_level_index","handleInvalid":"keep","inputCol":"price_level"},"defaultParamMap":{"outputCol":"StringIndexer_30287887a6ac__output","handleInvalid":"error","stringOrderType":"frequencyDesc"}}

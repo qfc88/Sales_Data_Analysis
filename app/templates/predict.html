@@ -1,0 +1,217 @@
+{% extends "base.html" %}
+
+{% block title %}Make Prediction - Sales Prediction{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-label {
+        font-weight: 500;
+    }
+    .loading-spinner {
+        width: 3rem;
+        height: 3rem;
+    }
+    .prediction-result {
+        transition: all 0.3s ease-in-out;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-8 col-lg-6">
+            <div class="card shadow">
+                <div class="card-header bg-white py-3">
+                    <h2 class="card-title mb-0 text-center">Sales Prediction</h2>
+                </div>
+                <div class="card-body">
+                    <form id="predictionForm">
+                        <div class="mb-3">
+                            <label for="year" class="form-label">Year</label>
+                            <input type="number" class="form-control" id="year" name="YEAR_ID" 
+                                   required min="2000" value="2024">
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="quarter" class="form-label">Quarter</label>
+                                <select class="form-select" id="quarter" name="QTR_ID" required>
+                                    <option value="1">Q1</option>
+                                    <option value="2">Q2</option>
+                                    <option value="3">Q3</option>
+                                    <option value="4">Q4</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="month" class="form-label">Month</label>
+                                <select class="form-select" id="month" name="MONTH_ID" required>
+                                    <option value="1">January</option>
+                                    <option value="2">February</option>
+                                    <option value="3">March</option>
+                                    <option value="4">April</option>
+                                    <option value="5">May</option>
+                                    <option value="6">June</option>
+                                    <option value="7">July</option>
+                                    <option value="8">August</option>
+                                    <option value="9">September</option>
+                                    <option value="10">October</option>
+                                    <option value="11">November</option>
+                                    <option value="12">December</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="productLine" class="form-label">Product Line</label>
+                            <select class="form-select" id="productLine" name="PRODUCTLINE" required>
+                                <option value="Classic Cars">Classic Cars</option>
+                                <option value="Vintage Cars">Vintage Cars</option>
+                                <option value="Motorcycles">Motorcycles</option>
+                                <option value="Trucks and Buses">Trucks and Buses</option>
+                                <option value="Planes">Planes</option>
+                                <option value="Ships">Ships</option>
+                                <option value="Trains">Trains</option>
+                            </select>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="msrp" class="form-label">MSRP</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">$</span>
+                                    <input type="number" class="form-control" id="msrp" name="MSRP" 
+                                           required min="0" value="100">
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="priceEach" class="form-label">Price Each</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">$</span>
+                                    <input type="number" class="form-control" id="priceEach" name="PRICEEACH" 
+                                           required min="0" step="0.01" value="90.00">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="dealSize" class="form-label">Deal Size</label>
+                            <select class="form-select" id="dealSize" name="DEALSIZE" required>
+                                <option value="Small">Small</option>
+                                <option value="Medium">Medium</option>
+                                <option value="Large">Large</option>
+                            </select>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">Make Prediction</button>
+                        </div>
+                    </form>
+
+                    <!-- Loading Spinner -->
+                    <div id="loading" class="text-center my-4 d-none">
+                        <div class="spinner-border text-primary loading-spinner" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2 text-primary">Processing prediction...</p>
+                    </div>
+
+                    <!-- Result Container -->
+                    <div id="result" class="mt-4 d-none prediction-result">
+                        <!-- Results will be inserted here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('predictionForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    // Show loading spinner
+    const loadingDiv = document.getElementById('loading');
+    const resultDiv = document.getElementById('result');
+    loadingDiv.classList.remove('d-none');
+    resultDiv.classList.add('d-none');
+    
+    // Get form data
+    const formData = new FormData(e.target);
+    const data = {};
+    
+    // Convert form data to correct types
+    data['YEAR_ID'] = parseInt(formData.get('YEAR_ID'));
+    data['QTR_ID'] = parseInt(formData.get('QTR_ID'));
+    data['MONTH_ID'] = parseInt(formData.get('MONTH_ID'));
+    data['PRODUCTLINE'] = formData.get('PRODUCTLINE');
+    data['MSRP'] = parseInt(formData.get('MSRP'));
+    data['PRICEEACH'] = parseFloat(formData.get('PRICEEACH'));
+    data['DEALSIZE'] = formData.get('DEALSIZE');
+    
+    // Client-side validation
+    if (data['PRICEEACH'] > data['MSRP']) {
+        resultDiv.innerHTML = `
+            <div class="alert alert-danger">
+                <h4 class="alert-heading">Validation Error</h4>
+                <hr>
+                <p class="mb-0">Price Each cannot be greater than MSRP</p>
+            </div>
+        `;
+        resultDiv.classList.remove('d-none');
+        loadingDiv.classList.add('d-none');
+        return;
+    }
+    
+    try {
+        const response = await fetch('/predict', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
+        });
+        
+        const result = await response.json();
+        resultDiv.classList.remove('d-none');
+        
+        if (response.ok) {
+            resultDiv.innerHTML = `
+                <div class="alert alert-success">
+                    <h4 class="alert-heading">Prediction Result</h4>
+                    <hr>
+                    <p class="mb-0">Predicted Quantity: <strong>${result.prediction}</strong> units</p>
+                </div>
+            `;
+        } else {
+            resultDiv.innerHTML = `
+                <div class="alert alert-danger">
+                    <h4 class="alert-heading">Error</h4>
+                    <hr>
+                    <p class="mb-0">${result.error || 'An error occurred while making the prediction.'}</p>
+                </div>
+            `;
+        }
+        
+    } catch (error) {
+        resultDiv.classList.remove('d-none');
+        resultDiv.innerHTML = `
+            <div class="alert alert-danger">
+                <h4 class="alert-heading">Error</h4>
+                <hr>
+                <p class="mb-0">An error occurred while making the prediction. Please try again.</p>
+            </div>
+        `;
+    } finally {
+        loadingDiv.classList.add('d-none');
+    }
+});
+
+// Initialize quarter-month relationship on page load
+document.getElementById('quarter').dispatchEvent(new Event('change'));
+</script>
+{% endblock %}

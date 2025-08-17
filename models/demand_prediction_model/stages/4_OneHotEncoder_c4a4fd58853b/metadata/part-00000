@@ -1,0 +1,1 @@
+{"class":"org.apache.spark.ml.feature.OneHotEncoderModel","timestamp":1736884943267,"sparkVersion":"3.1.1","uid":"OneHotEncoder_c4a4fd58853b","paramMap":{"outputCol":"dealsize_vec","inputCol":"dealsize_index"},"defaultParamMap":{"handleInvalid":"error","dropLast":true,"outputCol":"OneHotEncoder_c4a4fd58853b__output"}}
